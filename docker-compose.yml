@@ -1,0 +1,30 @@
+version: '3.3'
+services:
+  vufindsolr:
+    tty: true
+    image: 'eclipse-temurin:21'
+    working_dir: /usr/local/vufind
+    restart: 'no'
+    user: '1000:1000'
+    volumes:
+      - './vufind/src:/usr/local/vufind'
+    container_name: vufindsolr
+    environment:
+      - VUFIND_LOCAL_DIR=/usr/local/vufind
+      - VUFIND_LOCAL_DIR=/usr/local/vufind/local
+      - SOLR_JETTY_HOST=0.0.0.0
+      - SOLR_ADDITIONAL_START_OPTIONS=-f
+    ports:
+      - '8984:8983'
+    command: './solr.sh start '
+  vufindweb10:
+    ports:
+      - '8111:80'
+    volumes:
+      - './html:/var/www/html'
+      - './scripts/000-default.conf:/etc/apache2/sites-available/000-default.conf'
+      - './vufind/src:/usr/local/vufind'
+      - './scripts:/usr/local/scripts'
+      - './phpini-override.ini:/etc/php/8.1/cli/conf.d/99-phpini-override.ini'
+      - './phpini-override.ini:/etc/php/8.1/apache2/conf.d/99-phpini-override.ini'
+    image: vufindweb10
